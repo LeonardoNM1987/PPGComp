@@ -5,9 +5,7 @@
 #  4)[X]Lista de vizinhos que cada AS possui;
 #  5)[ ]Detecta o nível do prepend
 #  6)[ ]Verifica se é prefixo Bogon
-#  7)[ ]Diferencia rotas IPv4 de IPv6
-
-
+#  7)[ ]Diferencia inoformações rotas IPv4 de IPv6
 
 
 
