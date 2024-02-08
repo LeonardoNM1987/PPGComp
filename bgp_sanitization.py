@@ -31,7 +31,7 @@ def filtrar_rotas(rota, bogons):
         return False
 
 # Caminho do arquivo de entrada
-caminho_dados_rede = 'rib_IPv4_validador02.txt'
+caminho_dados_rede = 'rib_IPv4_IPv6_validador02.txt'
 
 # Gerando o caminho do arquivo de saída
 nome_base, extensao = os.path.splitext(caminho_dados_rede)
