@@ -15,8 +15,9 @@ conta_prep = 0 #contabiliza visualizações de prepend em geral(apenas debug)
 vizinhos = {} #contabiliza todos vizinhos que cada ASN teve
 asesTotais = [] #contabiliza todos ASes unicos vistos na análise
 
-def listaVizinhos(dicionario, chave, valor): # Função para adicionar vizinhos
-    if chave != valor:  # Excluir o próprio número
+# Função para adicionar vizinhos
+def listaVizinhos(dicionario, chave, valor): 
+    if chave != valor:  #Ignorar o próprio ASN como vizinho dele mesmo
         if chave in dicionario:
             dicionario[chave].add(valor)  # Adicionar em um conjunto para evitar duplicatas
         else:
@@ -34,7 +35,7 @@ def contaPrepend(aspath):
     global conta_prep #conta aspp em geral(apenas debug)
 
     i=1 # indica posição do asn no path analisado
-    trigger = True ; #enquanto ligado contabiliza o asn como de origem/desligado contabiliza como intermediario
+    trigger = True ; #enquanto ligado contabiliza o asn como de origem/ se desligado contabiliza como intermediario
     for item in range(len(asn)): #aqui começa a verificação no path    
 
         while(i<len(asn)):    
@@ -66,23 +67,27 @@ def contaPrepend(aspath):
             print('----------------------------------------------')
 
 
+
+######################## EXECUÇÃO #########################
             
-with open('rib_validador01.txt', 'r') as arquivo: #abertura do arquivo para análise
+
+with open('rib_IPv4_validador02.txt', 'r') as arquivo: #abertura do arquivo para análise
     
        
     linhas = 0 #contador de linhas
     for linha in arquivo: #ler linha por linha          
-                   
+
+
+        #busca a coluna de ASes para análise
         linhas +=1;
-        coluna = linha.split('|')   # separa as colunas de cada linha        
-        
+        coluna = linha.split('|') 
         if len(coluna)>=3:             
             asPath = coluna[2].split()  #divide os ases no as-path                    
             
             contaPrepend(asPath)
 
             asn = asPath # quebra em vários asn   
-            # Iterar pela lista de números
+            # Iterar pela lista de ASes
             for i, num in enumerate(asn):
                 # Vizinho anterior
                 if i > 0:  # Certificar de não estar no primeiro elemento
@@ -93,16 +98,16 @@ with open('rib_validador01.txt', 'r') as arquivo: #abertura do arquivo para aná
         
         else:
             print("ERRO: Não foi possível ler a linha! Passando para a próxima..")
-       
+    
     
     
 ######################## RESULTADOS #########################
 
 
 print(f'\n\nQuantas vezes se viu prepend: {conta_prep}\n')
-print(f'Ases que fazem prepend na origem: {origem}\n')
-print(f'ASes que fazem prepend de forma intermediária: {intermed}\n')
-print(f'ASes únicos visualizados: {asesTotais}\n')
+print(f'Ases que fazem prepend na origem: {sorted(origem, key=int)}\n')
+print(f'ASes que fazem prepend de forma intermediária: {sorted(intermed,key=int)}\n')
+print(f'ASes únicos visualizados: {sorted(asesTotais, key=int)}\n')
 vizinhos_formatados = {k: list(v) for k, v in vizinhos.items()} # Convertendo conjuntos para listas para melhor visualização
 print(f'Lista de ASN e seus respectivos vizinhos: {vizinhos_formatados}\n')
 print(f'Linhas no arquivo: {linhas}')
