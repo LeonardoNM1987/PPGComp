@@ -85,7 +85,7 @@ try:
             
 
             #busca a coluna de ASes para análise
-            linhas +=1;
+            linhas +=1
             coluna = linha.split('|')
 
             #A condição abaixo verifica se é rota IPv6 e a ignora
