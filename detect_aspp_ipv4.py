@@ -76,7 +76,8 @@ def contaPrepend(aspath):
             
 
 try:
-    with open('validadores/rib_IPv4_IPv6_validador02_sanitized.txt', 'r') as arquivo:           
+    # TESTAR O ARQUIVO DA PASTA RIB AQUI      
+    with open('validadores/rib_IPv4_IPv6_validador02_sanitized.txt', 'r') as arquivo:    
         linhas = 0 #contador de linhas
     
         for linha in arquivo: #ler linha por linha          
