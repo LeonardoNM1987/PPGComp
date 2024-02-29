@@ -3,9 +3,13 @@
 
 import ipaddress
 import os
+import datetime
 
-caminho_bogons = 'bogons_list.txt'
+
+caminho_bogons = 'auxiliar/bogons_list.txt'
 source = 'source/rib.20231001.0000_rotasReduzidas.txt' 
+
+inicio = datetime.datetime.now() # Marca o início da execução
 
 
 # Carrega a lista de rotas bogon do arquivo
@@ -40,7 +44,7 @@ def filtrar_rotas(rota, bogons):
 
 # Gerando o caminho do arquivo de saída
 nome_base, extensao = os.path.splitext(source)
-caminho_saida = f"source/{nome_base}_sanitized{extensao}"
+caminho_saida = f"{nome_base}_sanitized{extensao}"
 
 
 
@@ -50,4 +54,9 @@ with open(source, 'r') as arquivo_entrada, open(caminho_saida, 'w') as arquivo_s
         if filtrar_rotas(linha, bogons):
             arquivo_saida.write(linha)
 
-print("Processamento concluído. As rotas válidas foram salvas em:", caminho_saida)
+print("\nProcessamento concluído. As rotas válidas foram salvas em:", caminho_saida,"\n")
+
+fim = datetime.datetime.now() # Marca o fim da execução
+tempo_execucao = fim - inicio
+tempo_formatado = str(tempo_execucao).split('.')[0] # Remove a parte dos microssegundos
+print(f"\nTempo de execução: {tempo_formatado}\n")

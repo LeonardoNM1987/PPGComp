@@ -10,11 +10,10 @@
 # PARA ANALISE DE ROTAS IPv6, EXECUTAR O 'detect_aspp_ipv6.py'
 
 import datetime
+import os
 
-
-source = 'source/rib.20231001.0000_rotasReduzidas.txt' # ARQUIVO PARA ANÁLISE
-
-
+source = 'validadores/validador_IPv4_01.txt'                           # ARQUIVO PARA VALIDAÇÃO
+#source = 'source/rib.20231001.0000_rotasReduzidas_sanitized.txt'    # ARQUIVO PARA ANÁLISE
 
 origem = []         # contabiliza prepends de origem
 intermed = []       # contabiliza prepends intermediarios
@@ -22,7 +21,6 @@ conta_prep = 0      # contabiliza visualizações de prepend em geral(apenas deb
 vizinhos = {}       # contabiliza todos vizinhos que cada ASN teve
 asesTotais = []     # contabiliza todos ASes unicos vistos na análise
 ases_unicos = set() # conjunto para armazenar AS_PATHs únicos
-
 
 # Aqui a funcao analisa quem é vizinho de quem
 
@@ -32,8 +30,6 @@ def listaVizinhos(dicionario, chave, valor):
             dicionario[chave].add(valor)    # Adicionar em um conjunto para evitar duplicatas
         else:
             dicionario[chave] = {valor} 
-
-
 
 def contaPrepend(aspath): 
     #print(f'AS Path em análise: {aspath}\n') # DEBUG
@@ -77,8 +73,6 @@ def contaPrepend(aspath):
             i+=1
             # print('----------------------------------------------') # DEBUG
 
-
-
 ######################## EXECUÇÃO #########################
 
 inicio = datetime.datetime.now() # Marca o início da execução
@@ -118,8 +112,8 @@ with open(source, 'r') as arquivo:
             
             else:
                 print(f'\nERRO: Não foi possível ler a linha {linhas}! Passando para a próxima...\n')
-        else:
-            print(f'Rota ignorada:{coluna[1]} | linha {linhas}')
+        #else:            
+            #print(f'Rota ignorada:{coluna[1]} | linha {linhas}') # Aqui só é avisado no prompt a rota ignorada
             
 
 
@@ -128,22 +122,51 @@ tempo_execucao = fim - inicio
 tempo_formatado = str(tempo_execucao).split('.')[0] # Remove a parte dos microssegundos
 
 
-######################## RESULTADOS #########################
-
+######################## RESULTADOS NO PROMPT #########################
 
 print('\nAnálise concluída com sucesso!\n')
 
 print(f"\nTempo de execução: {tempo_formatado}\n")
 
-print('##############################  RESULTADOS ##############################')
-print(f'\nQuantas vezes se viu prepend: {conta_prep}\n')
-print(f'Ases que fazem prepend na origem: {sorted(origem, key=int)}\n')
-print(f'ASes que fazem prepend de forma intermediária: {sorted(intermed,key=int)}\n')
-#print(f'ASes únicos visualizados: {sorted(asesTotais, key=int)}\n')
-print(f'ASes únicos visualizados: {asesTotais}\n')
-#vizinhos_formatados = {k: list(v) for k, v in vizinhos.items()} # Convertendo conjuntos para listas para melhor visualização
-print(f'Lista de ASN e seus respectivos vizinhos: {vizinhos}\n')
-print(f'Linhas no arquivo: {linhas}') 
 
 
+# print('##############################  RESULTADOS ##############################')
+# print(f'\nQuantas vezes se viu prepend: {conta_prep}\n')
+# print(f'Ases que fazem prepend na origem: {sorted(origem, key=int)}\n')
+# print(f'ASes que fazem prepend de forma intermediária: {sorted(intermed,key=int)}\n')
+# print(f'ASes únicos visualizados: {sorted(asesTotais, key=int)}\n')
+# print(f'ASes únicos visualizados: {asesTotais}\n')
+# vizinhos_formatados = {k: list(v) for k, v in vizinhos.items()} # Convertendo conjuntos para listas para melhor visualização
+# print(f'Lista de ASN e seus respectivos vizinhos: {vizinhos}\n')
+# print(f'Linhas no arquivo: {linhas}') 
+
+
+
+
+
+######################## OUTPUT PARA PASTA RESULTS #########################
+
+# Aqui é criado o arquivo results com toda análise
+
+
+# Ordem do arquivo results: 
+# 1 - Total de prepends contabilizados
+# 2 - Lista de ASes com prepend na origem
+# 3 - Lista de ASes com prepend intermediario
+# 4 - Lista de ASes unicos visualizados
+# 5 - ASes com seus respctivos vizinhos listados
+
+
+nomeOriginal = os.path.basename(source)
+
+output = (f'./results/{nomeOriginal}_results.txt')
+
+with open(output, 'w') as arquivoResultados:
+    arquivoResultados.write(f'{conta_prep}\n')  # 1 - Total de prepends contabilizados
+    arquivoResultados.write(f'{origem}\n')      # 2 - Lista de ASes com prepend na origem
+    arquivoResultados.write(f'{intermed}\n')    # 3 - Lista de ASes com prepend intermediario
+    arquivoResultados.write(f'{asesTotais}\n')  # 4 - Lista de ASes unicos visualizados
+    arquivoResultados.write(f'{vizinhos}\n')    # 5 - ASes com seus respctivos vizinhos listados
+
+print(f"\n\nOs resultados foram salvos em: {output}\n\n")
 
