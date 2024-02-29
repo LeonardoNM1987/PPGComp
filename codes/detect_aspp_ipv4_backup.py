@@ -9,34 +9,41 @@
 # ESTE CÓDIGO ANALISA APENAS ROTAS IPv4
 # PARA ANALISE DE ROTAS IPv6, EXECUTAR O 'detect_aspp_ipv6.py'
 
+import datetime
+
+
+source = 'validadores/validador_IPv4_01.txt' # ARQUIVO PARA ANÁLISE
 
 
 
+origem = []         # contabiliza prepends de origem
+intermed = []       # contabiliza prepends intermediarios
+conta_prep = 0      # contabiliza visualizações de prepend em geral(apenas debug)
+vizinhos = {}       # contabiliza todos vizinhos que cada ASN teve
+asesTotais = []     # contabiliza todos ASes unicos vistos na análise
+ases_unicos = set() # conjunto para armazenar AS_PATHs únicos
 
-origem = [] #contabiliza prepends de origem
-intermed = [] #contabiliza prepends intermediarios
-conta_prep = 0 #contabiliza visualizações de prepend em geral(apenas debug)
-vizinhos = {} #contabiliza todos vizinhos que cada ASN teve
-asesTotais = [] #contabiliza todos ASes unicos vistos na análise
 
-# Função para adicionar vizinhos
+# Aqui a funcao analisa quem é vizinho de quem
+
 def listaVizinhos(dicionario, chave, valor): 
-    if chave != valor:  #Ignorar o próprio ASN como vizinho dele mesmo
+    if chave != valor:                      # Ignorar o próprio ASN como vizinho dele mesmo
         if chave in dicionario:
-            dicionario[chave].add(valor)  # Adicionar em um conjunto para evitar duplicatas
+            dicionario[chave].add(valor)    # Adicionar em um conjunto para evitar duplicatas
         else:
             dicionario[chave] = {valor} 
+
 
 
 def contaPrepend(aspath): 
     #print(f'AS Path em análise: {aspath}\n') # DEBUG
     
-    asn = aspath # quebra em vários asn
+    asn = aspath        # quebra em vários asn
     
     global asesTotais
-    global origem #conta os de origem
-    global intermed #conta os intermediarios
-    global conta_prep #conta aspp em geral(apenas debug)
+    global origem       # conta os de origem
+    global intermed     # conta os intermediarios
+    global conta_prep   # conta aspp em geral(apenas debug)
 
     i=1 # indica posição do asn no path analisado
     trigger = True ; #enquanto ligado contabiliza o asn como de origem/ se desligado contabiliza como intermediario
@@ -73,27 +80,24 @@ def contaPrepend(aspath):
 
 
 ######################## EXECUÇÃO #########################
-            
 
-try:
-    # TESTAR O ARQUIVO DA PASTA RIB AQUI      
-    with open('validadores/rib_IPv4_IPv6_validador02_sanitized.txt', 'r') as arquivo:    
-        linhas = 0 #contador de linhas
-    
-        for linha in arquivo: #ler linha por linha          
+inicio = datetime.datetime.now() # Marca o início da execução
 
-            
-            
+print("\n\n[  ATENÇÃO!  ] ANTES DE ANALISAR O ARQUIVO DE ENTRADA, FILTRE ELE COM O 'bgp_sanitization.py'! [  ATENÇÃO!  ]") 
+print('\n\n##############################  ANALISANDO SNAPSHOT... ##############################\n\n')
+with open(source, 'r') as arquivo:    
+    linhas = 0 #contador de linhas
 
-            #busca a coluna de ASes para análise
-            linhas +=1
-            coluna = linha.split('|')
+    for linha in arquivo: #ler linha por linha          
+       
+        
 
-            #A condição abaixo verifica se é rota IPv6 e a ignora
-            if ':' in coluna[1]:
-                print(f'Rota ignorada:{coluna[1]} | linha {linhas}')
-                continue
+        #busca a coluna de ASes para análise
+        linhas +=1
+        coluna = linha.split('|')
 
+        
+        if ':' not in coluna[1]: # Esse if verifica se é rota ipv4. Senão for, pula linha. 
             if len(coluna)>=3:             
                 asPath = coluna[2].split()  #divide os ases no as-path                    
                 
@@ -110,20 +114,32 @@ try:
                         listaVizinhos(vizinhos, num, asn[i+1])              
             
             else:
-                print("ERRO: Não foi possível ler a linha! Passando para a próxima..")
-     
-    
-    ######################## RESULTADOS #########################
+                print(f'\nERRO: Não foi possível ler a linha {linhas}! Passando para a próxima...\n')
+        else:
+            print(f'Rota ignorada:{coluna[1]} | linha {linhas}')
+            
 
-    print("\n\n[AVISO!] ANTES DE ANALISAR O ARQUIVO DE ENTRADA, FILTRE ELE COM O 'bgp_sanitization.py'!")
-    print(f'\nQuantas vezes se viu prepend: {conta_prep}\n')
-    print(f'Ases que fazem prepend na origem: {sorted(origem, key=int)}\n')
-    print(f'ASes que fazem prepend de forma intermediária: {sorted(intermed,key=int)}\n')
-    print(f'ASes únicos visualizados: {sorted(asesTotais, key=int)}\n')
-    vizinhos_formatados = {k: list(v) for k, v in vizinhos.items()} # Convertendo conjuntos para listas para melhor visualização
-    print(f'Lista de ASN e seus respectivos vizinhos: {vizinhos_formatados}\n')
-    print(f'Linhas no arquivo: {linhas}') 
 
-except:
-  print("[AVISO!] OCORREU UM ERRO AO LER O ARQUIVO. VERIFIQUE O ARQUIVO DE ENTRADA E TENTE NOVAMENTE!")
+fim = datetime.datetime.now() # Marca o fim da execução
+tempo_execucao = fim - inicio
+tempo_formatado = str(tempo_execucao).split('.')[0] # Remove a parte dos microssegundos
+
+
+######################## RESULTADOS #########################
+
+
+print('\nAnálise concluída com sucesso!\n')
+
+print(f"\nTempo de execução: {tempo_formatado}\n")
+
+print('##############################  RESULTADOS ##############################')
+print(f'\nQuantas vezes se viu prepend: {conta_prep}\n')
+print(f'Ases que fazem prepend na origem: {sorted(origem, key=int)}\n')
+print(f'ASes que fazem prepend de forma intermediária: {sorted(intermed,key=int)}\n')
+print(f'ASes únicos visualizados: {sorted(asesTotais, key=int)}\n')
+vizinhos_formatados = {k: list(v) for k, v in vizinhos.items()} # Convertendo conjuntos para listas para melhor visualização
+print(f'Lista de ASN e seus respectivos vizinhos: {vizinhos_formatados}\n')
+print(f'Linhas no arquivo: {linhas}') 
+
+
 

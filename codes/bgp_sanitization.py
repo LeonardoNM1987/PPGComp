@@ -4,11 +4,18 @@
 import ipaddress
 import os
 
+caminho_bogons = 'bogons_list.txt'
+source = 'source/rib.20231001.0000_rotasReduzidas.txt' 
+
+
 # Carrega a lista de rotas bogon do arquivo
-def carregar_bogons(caminho_arquivo):
-    with open(caminho_arquivo, 'r') as arquivo:
+def carregar_bogons(caminho_bogons):
+    with open(caminho_bogons, 'r') as arquivo:
         bogons = [linha.strip() for linha in arquivo.readlines()]
     return bogons
+
+# Carrega a lista de bogons
+bogons = carregar_bogons(caminho_bogons)
 
 # Verifica se a rota é bogon ou tem prefixo menor que /8
 def filtrar_rotas(rota, bogons):
@@ -29,24 +36,16 @@ def filtrar_rotas(rota, bogons):
     except ValueError:
         # Em caso de erro na conversão para rede IP, considera inválido
         return False
-
-# Caminho do arquivo de entrada
-    
-    # TESTAR O ARQUIVO DA PASTA RIB AQUI      
-caminho_dados_rede = 'rib_IPv4_IPv6_validador02.txt' 
+  
 
 # Gerando o caminho do arquivo de saída
-nome_base, extensao = os.path.splitext(caminho_dados_rede)
-caminho_saida = f"{nome_base}_sanitized{extensao}"
+nome_base, extensao = os.path.splitext(source)
+caminho_saida = f"source/{nome_base}_sanitized{extensao}"
 
-# Caminho do arquivo bogons
-caminho_bogons = 'bogons_list.txt'
 
-# Carrega a lista de bogons
-bogons = carregar_bogons(caminho_bogons)
 
 # Processa o arquivo de dados de rede
-with open(caminho_dados_rede, 'r') as arquivo_entrada, open(caminho_saida, 'w') as arquivo_saida:
+with open(source, 'r') as arquivo_entrada, open(caminho_saida, 'w') as arquivo_saida:
     for linha in arquivo_entrada:
         if filtrar_rotas(linha, bogons):
             arquivo_saida.write(linha)

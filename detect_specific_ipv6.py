@@ -14,3 +14,7 @@ def analisar_ipv6(arquivo):
                 continue
 
 arquivo_ipv6 = 'validadores/rib_IPv4_IPv6_validador02_sanitized.txt'
+analisar_ipv6(arquivo_ipv6)
+
+
+
