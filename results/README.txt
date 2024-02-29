@@ -6,4 +6,4 @@ Ordem das linhas do arquivo results:
 2 - Lista de ASes com prepend na origem
 3 - Lista de ASes com prepend intermediario
 4 - Lista de ASes unicos visualizados
-5 - ASes com seus respctivos vizinhos listados
+5 - ASes com seus respectivos vizinhos listados

@@ -83,9 +83,7 @@ with open(source, 'r') as arquivo:
     linhas = 0 #contador de linhas
 
     for linha in arquivo: #ler linha por linha          
-       
-        
-
+          
         #busca a coluna de ASes para análise
         linhas +=1
         coluna = linha.split('|')
