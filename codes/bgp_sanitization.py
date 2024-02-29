@@ -6,8 +6,9 @@ import os
 import datetime
 
 
-caminho_bogons = 'auxiliar/bogons_list.txt'
-source = 'source/rib.20231001.0000_rotasReduzidas.txt' 
+caminho_bogons = './codes/bogonsList.txt'
+#source = 'source/rib.20231001.0000_rotasReduzidas.txt' 
+source = 'validadores/validador_IPv4_01.txt'                           # ARQUIVO PARA VALIDAÇÃO
 
 inicio = datetime.datetime.now() # Marca o início da execução
 
