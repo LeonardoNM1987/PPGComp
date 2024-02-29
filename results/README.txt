@@ -1,0 +1,1 @@
+Nesta pasta ficarão os resultados das análises, antes de plotar
