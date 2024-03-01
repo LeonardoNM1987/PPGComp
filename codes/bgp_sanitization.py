@@ -6,12 +6,16 @@ import os
 import datetime
 
 
+
+
+
 caminho_bogons = './codes/bogonsList.txt'
-#source = 'source/rib.20231001.0000_rotasReduzidas.txt' 
-source = 'validadores/validador_IPv4_01.txt'                           # ARQUIVO PARA VALIDAÇÃO
+source = 'source/rib.20130320.0000.txt' 
+#source = 'validadores/validador_IPv4_01.txt'                           # ARQUIVO PARA VALIDAÇÃO
 
 inicio = datetime.datetime.now() # Marca o início da execução
 
+print(f'\n Iniciando sanitização do arquivo: {source}.....\n')
 
 # Carrega a lista de rotas bogon do arquivo
 def carregar_bogons(caminho_bogons):
@@ -60,4 +64,4 @@ print("\nProcessamento concluído. As rotas válidas foram salvas em:", caminho_
 fim = datetime.datetime.now() # Marca o fim da execução
 tempo_execucao = fim - inicio
 tempo_formatado = str(tempo_execucao).split('.')[0] # Remove a parte dos microssegundos
-print(f"\nTempo de execução: {tempo_formatado}\n")
+print(f"Tempo de execução: {tempo_formatado}\n")

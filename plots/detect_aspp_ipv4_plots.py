@@ -1,9 +1,6 @@
 import matplotlib.pyplot as plt
 
 
-
-
-
 # Supondo que você leu esses dados do seu arquivo txt
 # Estes são apenas dados de exemplo
 total_prepends = 100  # Valor hipotético
