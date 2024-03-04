@@ -1,1 +1,1 @@
-Aqui ficarão todos os plots das análises
+Aqui ficarao os códigos e gráficos das análises
