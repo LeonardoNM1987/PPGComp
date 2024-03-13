@@ -25,10 +25,11 @@ def contaPrepend(aspath):
             if (asn[-i] not in asesTotais):                    
                 asesTotais.append(asn[-i])                        
             if (asn[-i] == asn[-(i+1)]):                               #compara os ASes de trás para frente                 
-                prependTotais+=1                
+                prependTotais+=1  
                 if (trigger==True):                                    #trata como prependOrigem
                     if (asn[-i] not in prependOrigem):                    
-                        prependOrigem.append(asn[-i])                        
+                        prependOrigem.append(asn[-i])
+                        
                 else:                                                  #trata como prependIntermediario
                     if (asn[-i] not in prependIntermed):
                         prependIntermed.append(asn[-i])                       
@@ -37,6 +38,16 @@ def contaPrepend(aspath):
                     trigger = False
             i+=1
 
+def contabilizar_duplicidade(as_path):
+    as_contagem = {}
+    as_set = set()    
+    for asn in as_path:
+        if asn in as_set:
+            as_contagem[asn] = as_contagem.get(asn, 0) + 1
+        else:
+            as_set.add(asn)    
+    return as_contagem
+
 
 ################################################ INPUTS #################################################
 
@@ -44,16 +55,17 @@ bogonsList = './codes/bogonsList.txt'                                  # lista d
 #source = 'validadores/validador_IPv4_01.txt'                           # ARQUIVO PARA VALIDAÇÃO
 #source = 'source/rib.20200320.0000.txt'                  # ARQUIVO PARA ANÁLISE
 
-sourceBatch = [
-    'rib.20110320.0000.txt',
-    'rib.20130320.0000.txt',
-    'rib.20150320.0000.txt',
-    'rib.20170320.0000.txt',
-    'rib.20200320.0000.txt'    
-]
-#sourceBatch = ['validadores/validador_IPv4_01.txt',
-#               'validadores/validador_IPv4_02.txt', 
-#               'validadores/validador_IPv4_03.txt']
+# sourceBatch = [
+#     'source/rib.20110320.0000.txt',
+#     'source/rib.20130320.0000.txt',
+#     'source/rib.20150320.0000.txt',
+#     'source/rib.20170320.0000.txt',
+#     'source/rib.20200320.0000.txt'    
+# ]
+# sourceBatch = ['validadores/validador_IPv4_01.txt',
+#                'validadores/validador_IPv4_02.txt', 
+#                'validadores/validador_IPv4_03.txt']
+sourceBatch = ['validadores/validador_IPv4_01.txt']
 
 ################################################ EXECUÇÃO #################################################
 
@@ -91,7 +103,8 @@ for snapshot in sourceBatch:                                               #esse
                         as_path_str = ' '.join(asPath)                     #Cria uma string única para o AS_PATH                
                         if as_path_str not in asPathUnico:                 #Verifica se o AS_PATH é único(evita contar rotas duplicadas em coletores diferentes)
                             asPathUnico.add(as_path_str)                   #Adiciona o AS_PATH ao conjunto de únicos
-                            contaPrepend(asPath)                           #Processa o AS_PATH
+                            contaPrepend(asPath)                           # >>>>>>>>> AQUI PODE SER UTIL USAR HPC
+                            #contabilizar_duplicidade(asPath)                  # >>>>>>>>> AQUI PODE SER UTIL USAR HPC
                             asn = asPath                                   #quebra o path em vários asn 
                             for i, num in enumerate(asn):                  #Iterar pela lista de ASes
                                 if i > 0:                                  #Certificar de não ser o primeiro elemento
@@ -103,7 +116,8 @@ for snapshot in sourceBatch:                                               #esse
                     else:
                         print(f'\nErro ao ler linha: {rotaValida}! Passando para a próxima...\n')
                 else:            
-                    print(f'Rota não é IPv4:{coluna[1]} | linha {numLinha}')  #Aqui só é avisado no prompt a rota ignorada
+                    #print(f'Rota não é IPv4:{coluna[1]} | linha {numLinha}')  #Aqui só é avisado no prompt a rota ignorada
+                    pass
             else:
                 print(f'Rota bogon na linha:{numLinha} | Prefixo: {coluna[1]}')
                 rotasRemovidas+=1
@@ -121,6 +135,7 @@ for snapshot in sourceBatch:                                               #esse
         arquivoResultados.write(f'{vizinhos}\n')                    # 5 - ASes com seus respctivos vizinhos listados
     print(f"Os resultados foram salvos em: {output}")
 
+    #duplicados_contagem = contabilizar_duplicidade(asPath)
 
     fim = datetime.datetime.now()                                       #Marca o fim da execução
     tempo_execucao = fim - inicio
@@ -130,7 +145,8 @@ for snapshot in sourceBatch:                                               #esse
 
     print('Análise concluída com sucesso!')
     print(f'Rotas IPv4 inválidas e ignoradas: {rotasRemovidas}') 
-    print(f'Rotas IPv4 analisadas: {rotaValida}') 
+    print(f'Rotas IPv4 analisadas: {rotaValida}')
+    #print(f"ASes com prepend: {duplicados_contagem}")
     print(f"Tempo de execução: {tempo_formatado}")
 
 
