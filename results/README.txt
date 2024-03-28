@@ -2,19 +2,22 @@ Nesta pasta ficarão os resultados das análises, antes de plotar
 
 Estrutura dos arquivos de resultados:
 
-# 1 - Total de ASes unicos visualizados
-# 2 - Total de prepends contabilizados
-# 3 - Total de prepends detectados na origem
-# 4 - Total de prepends detectados intermediarios
-# 5 - Total de ASes que fazem prepend nivel 1
-# 6 - Total de ASes que fazem prepend nivel 2
-# 7 - Total de ASes que fazem prepend nivel 3
-# 8 - Total de ASes que fazem prepend nivel 4+        
-# 9 - Lista de ASes unicos visualizados        
-# 10 - Lista de ASes com prepend na prependOrigem
-# 11 - Lista de ASes com prepend prependIntermediario
-# 12 - Lista de ASes que fazem prepend nivel 1
-# 13 - Lista de ASes que fazem prepend nivel 2
-# 14 - Lista de ASes que fazem prepend nivel 3
-# 15 - Lista de ASes que fazem prepend nivel 4 ou +        
-# 16 - Lista de ASes com seus respectivos vizinhos
+# 1 - Quantitativo de ASes unicos visualizados
+# 2 - Quantitativo de prepends no geral 
+# 3 - Quantitativo de prepends na origem
+# 4 - Quantitativo de prepends intermed
+# 5 - Quantitativo de ASes que fazem prepend tamanho 1
+# 6 - Quantitativo de ASes que fazem prepend tamanho 2
+# 7 - Quantitativo de ASes que fazem prepend tamanho 3
+# 8 - Quantitativo de ASes que fazem prepend tamanho 4+        
+# 9 - Conjunto de ASes unicos visualizados        
+# 10 - Conjunto de ASes com prepend na conjPrepOrigem
+# 11 - Conjunto de ASes com prepend conjPrepIntermediario
+# 12 - Conjunto de ASes que fazem prepend tamanho 1
+# 13 - Conjunto de ASes que fazem prepend tamanho 2
+# 14 - Conjunto de ASes que fazem prepend tamanho 3
+# 15 - Conjunto de ASes que fazem prepend tamanho 4+                
+# 16 - Conjunto de prefixos que fazem prepend na Origem
+# 17 - Dicionario que relaciona ASes com os prefixos anunciados fazendo prepend na Origem
+# 18 - Dicionario que lista quais ASes anunciam quais prefixos
+# 19 - Dicionario que relaciona ASes com seus respectivos vizinhos
