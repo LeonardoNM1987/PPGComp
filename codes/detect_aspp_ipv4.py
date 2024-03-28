@@ -4,19 +4,23 @@ import os
 #RESULTADOS A APRESENTAR
 conjPrepTam1 = set()                           # conjunto de ASes que fazem prepends de tamanho 1
 conjPrepTam2 = set()                           # conjunto de ASes que fazem prepends de tamanho 2
-conPrepTam3 = set()                            # conjunto de ASes que fazem prepends de tamanho 3
+conjPrepTam3 = set()                            # conjunto de ASes que fazem prepends de tamanho 3
 conjPrepTam4plus = set()                       # conjunto de ASes que fazem prepends de tamanho 4 ou +
 conjPrepOrigem = set()                         # conjunto de todos ASes que fazem prepend na Origem 
 conjPrepIntermed = set()                       # conjunto de todos ASes que fazem prepend de forma Intermediária
+conjPrepOrigemANDintermed = set()              # conjunto de ASes que fazem prepend Origem e Intermed
+conjPrepOnlyOrigem = set() 
+conjPrepOnlyIntermed = set() 
 conjAsesUnicos = set()                         # conjunto de todos ASes unicos vistos na análise
 dictVizinhos = {}                              # dicionario com todos vizinhos de cada AS
 dictPrefixAsnPrep = {}                         # dicionario com prefixos anunciados apenas por ASN que faz prepend
 dictPrefixASN = {}                             # dicionario com prefixos anunciados por cada ASN
 prefixPrepOrigem = set()                       # conjunto de prefixos que fazem prep na Origem
+qtdePrependTotais = 0                          # quantitativo dos prep apenas na origem, apenas Intermediario e que fazem os dois   
 
 #OBJETOS TEMPORARIOS E DEBUG
 asPathUnico = set()                            # conjunto de AS_PATHs únicos, usados para eliminar rotas duplicadas
-qtdePrependTotais = 0                          # quantitativo de visualizações de prepend em geral(apenas debug)   
+
 rotasBogon = []                                # identificacao das rotas bogon para debug
 qtdeRotasIgnoradas = 0                         # identificacao das rotas bogon para debug
 qtdeRotasValidas = 0                           # identificacao das rotas validas para debug
@@ -42,14 +46,13 @@ def contaPrepend(aspath, prefixo):
      
 
     conjPrepOrigem                                                    # conta os de conjPrepOrigem
-    conjPrepIntermed                                                  # conta os conjPrepIntermediarios
-    qtdePrependTotais                                                 # conta aspp em geral(apenas debug)
-    i=1                                                                # indica posição do asn no path analisado
+    conjPrepIntermed                                                  # conta os conjPrepIntermediarios                                                                     
+    i=1                                                               # indica posição do asn no path analisado
     trigger = True ; 
     for item in range(len(asn)):                                       #aqui começa a verificação no path    
         while(i<len(asn)):          
             if (asn[-i] == asn[-(i+1)]):                               #compara os ASes de trás para frente                 
-                #qtdePrependTotais+=1  
+                  
                 if (trigger==True):                                    #trata como conjPrepOrigem
                     conjPrepOrigem.add(asn[-i])
                     prefixPrepOrigem.add(prefixo)
@@ -86,14 +89,14 @@ def identificar_prepend_nivel(as_path):
         nivel_prepend_temp[as_path[-1]] = contador_temp - 1
 
     # Organiza os ASNs em listas por nível de prepend
-    #conjPrepTam1, conjPrepTam2, conPrepTam3, conjPrepTam4plus = [], [], [], []
+    #conjPrepTam1, conjPrepTam2, conjPrepTam3, conjPrepTam4plus = [], [], [], []
     for asn, nivel in nivel_prepend_temp.items():
         if nivel == 1:
             conjPrepTam1.add(asn)
         elif nivel == 2:
             conjPrepTam2.add(asn)
         elif nivel == 3:
-            conPrepTam3.add(asn)
+            conjPrepTam3.add(asn)
         else:
             conjPrepTam4plus.add(asn)
 
@@ -149,7 +152,7 @@ for snapshot in sourceBatch:                                               # ess
                     contaAsesUnicos(asPath)                        # >>>>>>>>> AQUI PODE SER UTIL USAR HPC
                     contaPrepend(asPath, coluna[1])                # >>>>>>>>> AQUI PODE SER UTIL USAR HPC
                     identificar_prepend_nivel(asPath)              # >>>>>>>>> AQUI PODE SER UTIL USAR HPC
-                    prefixosAnunciados(asPath, coluna[1])          # >>>>>>>>> AQUI PODE SER UTIL USAR HPC
+                    prefixosAnunciados(asPath, coluna[1])          # >>>>>>>>> AQUI PODE SER UTIL USAR HPC                    
                     asn = asPath                                   #quebra o path em vários asn 
                     for i, num in enumerate(asn):                  #Iterar pela lista de ASes
                         if i > 0:                                  #Certificar de não ser o primeiro elemento
@@ -157,57 +160,68 @@ for snapshot in sourceBatch:                                               # ess
                         # Vizinho seguinte
                         if i < len(asn)-1:                         #Certificar de não ser o último elemento
                             listadictVizinhos(dictVizinhos, num, asn[i+1])
+                    
+                    
             else:
                 #print(f'Rota inválida na linha: {numeroDaLinha} | Prefixo: {coluna[1]}')
                 qtdeRotasIgnoradas+=1
+
+    conjPrepOrigemANDintermed = conjPrepOrigem & conjPrepIntermed                                               # O que consta nos dois conjuntos - intersecção
+    conjPrepOnlyOrigem = conjPrepOrigem - conjPrepIntermed                                                  # o que consta apenas no de origem
+    conjPrepOnlyIntermed = conjPrepIntermed - conjPrepOrigem                                                # o que consta apenas no intermed
+    qtdePrependTotais = len(conjPrepOnlyOrigem)+len(conjPrepOnlyIntermed)+len(conjPrepOrigemANDintermed)    #soma de todos prepends 
 
 
 ######################## OUTPUT PARA PASTA RESULTS #########################
     nomeOriginal = os.path.basename(snapshot)
     nomeSemExtensao, extensao = os.path.splitext(nomeOriginal)
-    output = (f'./results/{nomeSemExtensao}_results.txt')
+    output = (f'./results/{nomeSemExtensao}_ipv4_results.txt')
     with open(output, 'w') as arquivoResultados:
-        arquivoResultados.write(f'{len(conjAsesUnicos)}\n')                       #1  
-        arquivoResultados.write(f'{len(conjPrepOrigem)+len(conjPrepIntermed)}\n') #2   
-        arquivoResultados.write(f'{len(conjPrepOrigem)}\n')                       #3  
-        arquivoResultados.write(f'{len(conjPrepIntermed)}\n')                     #4  
-        arquivoResultados.write(f'{len(conjPrepTam1)}\n')                         #5  
-        arquivoResultados.write(f'{len(conjPrepTam2)}\n')                         #6  
-        arquivoResultados.write(f'{len(conPrepTam3)}\n')                          #7  
-        arquivoResultados.write(f'{len(conjPrepTam4plus)}\n')                     #8       
-        arquivoResultados.write(f'{conjAsesUnicos}\n')                            #9     
-        arquivoResultados.write(f'{conjPrepOrigem}\n')                            #10 
-        arquivoResultados.write(f'{conjPrepIntermed}\n')                          #11  
-        arquivoResultados.write(f'{conjPrepTam1}\n')                              #12   
-        arquivoResultados.write(f'{conjPrepTam2}\n')                              #13   
-        arquivoResultados.write(f'{conPrepTam3}\n')                               #14   
-        arquivoResultados.write(f'{conjPrepTam4plus}\n')                          #15                  
-        arquivoResultados.write(f'{prefixPrepOrigem}\n')                          #16  
-        arquivoResultados.write(f'{dictPrefixAsnPrep}\n')                         #17
-        arquivoResultados.write(f'{dictPrefixASN}\n')                         #18
-        arquivoResultados.write(f'{dictVizinhos}\n')                              #19
+        arquivoResultados.write(f'{len(conjAsesUnicos)}\n')               #1
+        arquivoResultados.write(f'{qtdePrependTotais}\n')                 #2   
+        arquivoResultados.write(f'{len(conjPrepOnlyOrigem)}\n')           #3  
+        arquivoResultados.write(f'{len(conjPrepOnlyIntermed)}\n')         #4
+        arquivoResultados.write(f'{len(conjPrepOrigemANDintermed)}\n')    #5          
+        arquivoResultados.write(f'{len(conjPrepTam1)}\n')                 #6  
+        arquivoResultados.write(f'{len(conjPrepTam2)}\n')                 #7  
+        arquivoResultados.write(f'{len(conjPrepTam3)}\n')                 #8  
+        arquivoResultados.write(f'{len(conjPrepTam4plus)}\n')             #9 
+        arquivoResultados.write(f'{conjAsesUnicos}\n')                    #10     
+        arquivoResultados.write(f'{conjPrepOnlyOrigem}\n')                #11 
+        arquivoResultados.write(f'{conjPrepOnlyIntermed}\n')              #12 
+        arquivoResultados.write(f'{conjPrepOrigemANDintermed}\n')         #13  
+        arquivoResultados.write(f'{conjPrepTam1}\n')                      #14
+        arquivoResultados.write(f'{conjPrepTam2}\n')                      #15
+        arquivoResultados.write(f'{conjPrepTam3}\n')                      #16
+        arquivoResultados.write(f'{conjPrepTam4plus}\n')                  #17
+        arquivoResultados.write(f'{prefixPrepOrigem}\n')                  #18
+        arquivoResultados.write(f'{dictPrefixAsnPrep}\n')                 #19
+        arquivoResultados.write(f'{dictPrefixASN}\n')                     #20
+        arquivoResultados.write(f'{dictVizinhos}\n')                      #21
     print(f"Os resultados foram salvos em: {output}")
 
  
 # 1 - Quantitativo de ASes unicos visualizados
-# 2 - Quantitativo de prepends no geral 
-# 3 - Quantitativo de prepends na origem
-# 4 - Quantitativo de prepends intermed
-# 5 - Quantitativo de ASes que fazem prepend tamanho 1
-# 6 - Quantitativo de ASes que fazem prepend tamanho 2
-# 7 - Quantitativo de ASes que fazem prepend tamanho 3
-# 8 - Quantitativo de ASes que fazem prepend tamanho 4+        
-# 9 - Conjunto de ASes unicos visualizados        
-# 10 - Conjunto de ASes com prepend na conjPrepOrigem
-# 11 - Conjunto de ASes com prepend conjPrepIntermediario
-# 12 - Conjunto de ASes que fazem prepend tamanho 1
-# 13 - Conjunto de ASes que fazem prepend tamanho 2
-# 14 - Conjunto de ASes que fazem prepend tamanho 3
-# 15 - Conjunto de ASes que fazem prepend tamanho 4+                
-# 16 - Conjunto de prefixos que fazem prepend na Origem
-# 17 - Dicionario que relaciona ASes com os prefixos anunciados fazendo prepend na Origem
-# 18 - Dicionario que lista quais ASes anunciam quais prefixos
-# 19 - Dicionario que relaciona ASes com seus respectivos vizinhos
+# 2 - Quantitativo de prepends no geral (apenas origem, apenas intermed e que fazem os dois) 
+# 3 - Quantitativo de prepends apenas de origem
+# 4 - Quantitativo de prepends apenas intermediário
+# 5 - Quantitativo de prepends que fazem Origem e Intermediário
+# 6 - Quantitativo de ASes que fazem prepend tamanho 1  
+# 7 - Quantitativo de ASes que fazem prepend tamanho 2
+# 8 - Quantitativo de ASes que fazem prepend tamanho 3
+# 9 - Quantitativo de ASes que fazem prepend tamanho 4+            
+# 10 - Conjunto de ASes unicos visualizados        
+# 11 - Conjunto de ASes com prepend apenas na Origem
+# 12 - Conjunto de ASes com prepend apenas Intermediário
+# 13 - Conjunto de ASes que fazem na Origem e também Intermediário 
+# 14 - Conjunto de ASes que fazem prepend tamanho 1
+# 15 - Conjunto de ASes que fazem prepend tamanho 2
+# 16 - Conjunto de ASes que fazem prepend tamanho 3
+# 17 - Conjunto de ASes que fazem prepend tamanho 4+                
+# 18 - Conjunto de prefixos que fazem prepend na Origem
+# 19 - Dicionario que associa ASes com os prefixos anunciados que fazem prepend na Origem
+# 20 - Dicionario que lista quais ASes anunciam quais prefixos
+# 21 - Dicionario que relaciona ASes com seus respectivos vizinhos
 
 
 
