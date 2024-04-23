@@ -1,0 +1,1 @@
+Este codigo 'sh' é usado no linux com o bgpscanner para conversão em lote de bz2 para txt
