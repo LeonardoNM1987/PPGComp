@@ -1,2 +1,10 @@
-3_source/
-99_organizar_ou_remover/
+1_bz2/*
+3_source_files/3.1_snapshots/*
+3_source_files/3.2_lacnic/*
+5_ipv4_results/5.1_aspp/5.1.1_deploy/*
+5_ipv4_results/5.1_aspp/5.1.2_policy/*
+5_ipv4_results/5.1_aspp/5.1.3_plots/*
+5_ipv4_results/5.2_lessSpecificPrefix/*
+x_ipv6/
+x_ipv6_results/
+x_organizar_ou_remover/
