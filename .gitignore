@@ -1,6 +1,8 @@
-1-source/rir_regions/*
+1-source/resources/*
 1-source/snapshots/*
 1-source/validadores/*
 bz2
 references
 revisar
+validadores
+andamento.py

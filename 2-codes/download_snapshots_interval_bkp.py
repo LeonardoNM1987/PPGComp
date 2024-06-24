@@ -1,6 +1,7 @@
 # Este codigo baixa todos snapshots de:
 # URL personalizável
 # Abril de 2018 até Abril 2020 / Todo dia 15/ Todo horario 2200 - Aprox. 25 snapshots
+
 import requests
 import os
 from datetime import datetime
@@ -40,13 +41,13 @@ def download_ribs_files(start_year, start_month, end_year, end_month, download_d
             print(f"An error occurred: {e}")
 
         # Avança para o próximo mês
-        next_month = month + 2
-        next_year = year + (next_month // 13)
-        next_month = next_month % 12 or 12
-        current_date = datetime(next_year, next_month, 1)
+        if month == 12:
+            current_date = datetime(year + 1, 1, 1)
+        else:
+            current_date = datetime(year, month + 1, 1)
 
 # Define o diretório de destino
 download_directory = '0_bz2/singapore'
 
 # Chamada da função para o intervalo desejado
-download_ribs_files(2011, 4, 2020, 4, download_directory)
+download_ribs_files(2018, 4, 2020, 4, download_directory)
